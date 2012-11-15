@@ -17,10 +17,10 @@ create table portfolio_users (
 );
 
 create table portfolios (
-  acctid  VARCHAR(16) NOT NULL primary key,
   user_email varchar(256) not null references portfolio_users(email) ON DELETE cascade,
   name varchar(64) not null,
-  cash number default 0
+  cash number default 0,
+  primary key(name, user_email)
 );
 
 
@@ -36,15 +36,15 @@ create table new_stocks_daily (
   );
 
 create table holdings (
-  portfolio_acctid varchar(16) not null references portfolios(acctid),
-  stock_symbol char(16) not null references cs339.StocksSymbols(symbol),
+  portfolio not null references portfolios(name, user_email),
+  symbol char(16) unique not null references cs339.StocksSymbols(symbol),
   count number not null
   );
 
 create table transactions (
   timestamp number not null unique,
   portfolio_acctid varchar(16) not null references portfolios(acctid),
-  holdings_stock_symbols char(16) not null references holdings(symbol),
+  symbol char(16) not null references holdings(symbol),
   type varchar(4) not null,
   quantity number not null
   );
