@@ -27,18 +27,22 @@ create table portfolios (
 create table new_stocks_daily (
 -- this will hold all the stocks daily info for data mined since the end of the stocks_daily table
   symbol char(16) not null references cs339.StocksSymbols(symbol),
-  timestamp number not null unique,
+  timestamp number not null,
   open number not null,
   high number not null,
   low number not null,
   close number not null,
-  volume number not null
+  volume number not null,
+  primary key(symbol, timestamp)
   );
 
 create table holdings (
-  portfolio not null references portfolios(name, user_email),
-  symbol char(16) unique not null references cs339.StocksSymbols(symbol),
-  count number not null
+  symbol char(16) not null references cs339.StocksSymbols(symbol),
+  count number not null,
+  portfolio_name varchar(64) not null,
+  user_email varchar(256) not null,
+  foreign key(portfolio_name, user_email) references portfolios(name, user_email),
+  primary key(symbol, portfolio_name, user_email)
   );
 
 create table transactions (
