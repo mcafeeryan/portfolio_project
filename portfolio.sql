@@ -46,11 +46,14 @@ create table holdings (
   );
 
 create table transactions (
-  timestamp number not null unique,
-  portfolio_acctid varchar(16) not null references portfolios(acctid),
-  symbol char(16) not null references holdings(symbol),
+  timestamp number not null,
+  portfolio_name varchar(16) not null,
+  user_email varchar(256) not null,
+  symbol char(16) not null references cs339.StocksSymbols(symbol),
   type varchar(4) not null,
-  quantity number not null
+  quantity number not null,
+  foreign key(portfolio_name, user_email) references portfolios(name, user_email),
+  primary key(timestamp, portfolio_name, user_email, symbol)
   );
 
 

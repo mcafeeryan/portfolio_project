@@ -212,7 +212,6 @@ if ($action eq "logout") {
 
 my @outputcookies;
 
-my @portfolios = GetPortfolios();
 
 #
 # OK, so now we have user/password
@@ -272,7 +271,7 @@ print "</head>";
 print "<body style=\"height:100\%;margin:0\">";
 
   
-
+my @portfolios = GetPortfolios();
 
 # THE HEADER
 print "<div class=\"navbar navbar-fixed-top\">";
@@ -289,6 +288,19 @@ print "<div class=\"navbar navbar-fixed-top\">";
           print "<li><a href=\"portfolio.pl?act=login\">Sign In</a></li>";
         }
         else {
+          print "<li class=\"dropdown\">";
+            print "<a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">Portfolios<b class=\"caret\"></b></a>";
+              print "<ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dLabel\">";
+                if (($#portfolios + 1) >= 1) {
+                  foreach (@portfolios) {
+                    print "<li><a href=\"portfolio.pl?act=portfolio-view&portfolio=$_\">$_</a></li>";
+                  }
+                }
+                print "<li class=\"divider\"></li>";
+                print "<li><a class=\"btn btn-success\" href=\"portfolio.pl?act=add-portfolio\">Add</a></li>";
+              print "</ul>";
+            print "</a>";
+          print "</li>";
           print "<li><a href=\"portfolio.pl?act=logout&run=1\">Sign Out</a></li>";
         }
       print "</ul>";
@@ -369,7 +381,7 @@ if ($action eq "base") {
         print "<li><a href=\"portfolio.pl?act=portfolio-view&portfolio=$_\">$_</a></li>";
         print "</br>";
       }
-      print "<a style=\"margin-top:15px\" href=\"portfolio.pl?act=add-portfolio\">Add another portfolio</a>";
+      print "<a style=\"margin-top:15px\" class=\"btn btn-success\" href=\"portfolio.pl?act=add-portfolio\">Add another portfolio</a>";
     }
   }
 
@@ -381,9 +393,25 @@ if ($action eq "base") {
 
 if ($action eq "portfolio-view") {
   my $portfolio = param("portfolio");
+  print "<h2 class=\"page-title\">Manage $portfolio portfolio:</h2>";
   my @cash = ExecSQL($dbuser,$dbpasswd, "select cash from portfolios where name=? and user_email=?", "ROW", $portfolio, $email);
-  print "You have \$$cash[$0] in this portfolio's cash account";
+  print "You have \$$cash[$0] in this portfolio's cash account </br>";
+  my @stocks = GetStocks($portfolio);
+  foreach (@stocks) {
+    print "<li><a href=\"#\">$_</a></li>";
+    print "</br>";
+  } 
+  print "<a href=\"portfolio.pl?act=portfolio-transaction&portfolio=$portfolio\">Buy or sell stock.</a>";
 }
+
+#
+# PORTFOLIO TRANSACTION VIEW (Buy or sell stock)
+#
+if ($action eq "portfolio-transaction") {
+  my $portfolio = param("portfolio");
+  print "<h2 class=\"page-title\">Buy or sell stock</h2>";
+}
+
 
 #
 #
@@ -608,6 +636,22 @@ sub GetPortfolios {
   my @rows;
   eval {
     @rows = ExecSQL($dbuser, $dbpasswd, "select name from portfolios where user_email=?", "COL", $email);
+  };
+  return @rows;
+}
+
+sub StockBuy {
+
+}
+
+sub StockSell {
+
+}
+
+sub GetStocks {
+  my @rows;
+  eval {
+    @rows = ExecSQL($dbuser, $dbpasswd, "select symbol from holdings where portfolio_name=? and user_email=?", "COL", @_, $email);
   };
   return @rows;
 }
