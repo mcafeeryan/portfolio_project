@@ -9,8 +9,8 @@ use Time::ParseDate;
 BEGIN {
   $ENV{PORTF_DBMS}="oracle";
   $ENV{PORTF_DB}="cs339";
-  $ENV{PORTF_DBUSER}="pdinda";
-  $ENV{PORTF_DBPASS}="pdinda";
+  $ENV{PORTF_DBUSER}="rpm267";
+  $ENV{PORTF_DBPASS}="Qea42wvW";
 
   unless ($ENV{BEGIN_BLOCK}) {
     use Cwd;

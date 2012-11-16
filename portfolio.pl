@@ -212,6 +212,8 @@ if ($action eq "logout") {
 
 my @outputcookies;
 
+my @portfolios = GetPortfolios();
+
 #
 # OK, so now we have user/password
 # and we *may* have an output cookie.   If we have a cookie, we'll send it right 
@@ -271,8 +273,6 @@ print "<body style=\"height:100\%;margin:0\">";
 
   
 
-print "<center>" if !$debug;
-
 
 # THE HEADER
 print "<div class=\"navbar navbar-fixed-top\">";
@@ -302,7 +302,7 @@ print "</div>";
 #
 #
 
-print "<div style=\"margin-top:50px\">";
+print "<div style=\"margin-top:50px; margin-left:8%; width:75%;\" class=\"hero-unit\">";
 
 #
 #
@@ -320,6 +320,7 @@ print "<div style=\"margin-top:50px\">";
 # 
 #
 if ($action eq "login") { 
+  print "<div style=\"text-align:center\">";
   if ($logincomplain) { 
     print "Login failed.  Try again.<p>"
   } 
@@ -334,6 +335,7 @@ if ($action eq "login") {
     end_form;
     print "<p>Not registered? <a href=\"portfolio.pl?act=sign-up\">Sign up here</a></p>";
   }
+  print "</div>";
 }
 
 
@@ -347,33 +349,40 @@ if ($action eq "login") {
 #
 if ($action eq "base") { 
 
-
-  #
-  # And a div to populate with info about nearby stuff
-  #
-  #
-  if ($debug) {
-    # visible if we are debugging
-    print "<div id=\"data\" style=\:width:100\%; height:10\%\"></div>";
-  } else {
-    # invisible otherwise
-    print "<div id=\"data\" style=\"display: none;\"></div>";
-  }
-
-
-# height=1024 width=1024 id=\"info\" name=\"info\" onload=\"UpdateMap()\"></iframe>";
+  #print img{src=>'plot_stock.pl?type=plot', height=>50, width=>60};
   
-
   #
   # User mods
   #
   #
   if (!$email) {
-    print "<p>You are not signed in, but you can <a href=\"portfolio.pl?act=login\">login</a></p>";
-  } else {
-    print "<p>You are logged in as $user</p>";
+    print "<h2 class=\"page-title\">You are not signed in, but you can <a href=\"portfolio.pl?act=login\">login</a></h2>";
+  } 
+  else {
+    print "<h2 class=\"page-title\">Welcome to Portfolio Manager!</h2>";
+    if (($#portfolios + 1) < 1) {
+      print "<p>Add a portfolio <a href=\"portfolio.pl?act=add-portfolio\">here</a> to get started.";
+    }
+    else {
+      print "<p>Below are your portfolios, click to access them and view/modify their contents:</p>";
+      foreach (@portfolios) {
+        print "<li><a href=\"portfolio.pl?act=portfolio-view&portfolio=$_\">$_</a></li>";
+        print "</br>";
+      }
+      print "<a style=\"margin-top:15px\" href=\"portfolio.pl?act=add-portfolio\">Add another portfolio</a>";
+    }
   }
 
+}
+
+#
+# PORTFOLIO VIEW
+#
+
+if ($action eq "portfolio-view") {
+  my $portfolio = param("portfolio");
+  my @cash = ExecSQL($dbuser,$dbpasswd, "select cash from portfolios where name=? and user_email=?", "ROW", $portfolio, $email);
+  print "You have \$$cash[$0] in this portfolio's cash account";
 }
 
 #
@@ -495,6 +504,31 @@ if ($action eq "sign-up") {
     }
 }
 
+if ($action eq "add-portfolio") {
+  if (!$run) {
+    print start_form(-name=>'Add Portfolio'),
+    h2('Add Portfolio'),
+    "Portfolio Name:", textfield(-name=>'portfolio_name'), p,
+    "Starting Cash:", textfield(-name=>'cash'), p,
+    hidden(-name=>'run', -default=>['1']),
+    hidden(-name=>'act', -default=>['add-portfolio']),
+    submit,
+    end_form, hr;
+  }
+  else {
+    my $portfolio_name = param('portfolio_name');
+    my $cash = param('cash');
+    my $error;
+    $error = PortfolioAdd($portfolio_name, $cash, $email);
+    if ($error) {
+      print "Couldn't create portfolio because: $error";
+    }
+    else {
+      print "Portfolio $portfolio_name was successfully created! Go <a href=\"portfolio.pl\">here</a> to view your new portfolio.";
+    }
+  }
+}
+
 #
 # Debugging output is the last thing we show, if it is set
 #
@@ -554,6 +588,28 @@ sub UserTable {
 		     ["Name", "Email"],
 		     @rows),$@);
   }
+}
+
+#
+# Add a portfolio
+# call with portfolio_name, cash
+#
+# returns false on success, error string on failure
+#
+# PortfolioAdd($portfolio_name, $cash, $email)
+sub PortfolioAdd {
+  eval {
+    ExecSQL($dbuser, $dbpasswd, "insert into portfolios (name, cash, user_email) values (?,?,?)",undef, @_);
+  };
+  return $@;
+}
+
+sub GetPortfolios {
+  my @rows;
+  eval {
+    @rows = ExecSQL($dbuser, $dbpasswd, "select name from portfolios where user_email=?", "COL", $email);
+  };
+  return @rows;
 }
 
 #
