@@ -406,10 +406,49 @@ if ($action eq "portfolio-view") {
 
 #
 # PORTFOLIO TRANSACTION VIEW (Buy or sell stock)
-#
+# buy logic checks:
+# check if stock symbol is valid
+# if so, check if its in new-stocks
+# if not in stocks, update
+# get latest price
+# if they have enough $$$, see if they already hold the stock
+# if so, update holding with new stock count
+# if not, add new holding for stock
+
+# sell logic checks:
+# check if stock symbol is valid
+# check if they hold the stock
+# check how many shares they hold
+# if they want to sell more than they have, withdraw everything
+# get latest price
+# add qty*price to their cash in the portfolio
 if ($action eq "portfolio-transaction") {
-  my $portfolio = param("portfolio");
-  print "<h2 class=\"page-title\">Buy or sell stock</h2>";
+  if (!$run) {
+    my $portfolio=param('portfolio');
+    print start_form(-name=>'Add Stock'),
+    h2('Add Stock'),
+    "Stock Symbol:", textfield(-name=>'stock_symbol'), p,
+    "Quantity:", textfield(-name=>'quantity'), p,
+    "Direction: ", radio_group(-name=>'direction',-values=>['Buy','Sell'], -default=>['Buy'],-columns=>2,-rows=>1), p,
+    hidden(-name=>'run', -default=>['1']), hidden(-name=>'portfolio_name',-default=>[$portfolio]),
+    hidden(-name=>'act', -default=>['portfolio-transaction']),
+    submit,
+    end_form, hr;
+  }
+  else {
+    my $portfolio_name = param('portfolio_name');
+    my $symbol=param('stock_symbol');
+    my $quantity=param('quantity');
+    my $direction=param('direction');
+    my $error;
+    print $portfolio_name, ' ', $symbol, ' ', $quantity,' ',$direction;
+    # if ($error) {
+    #  print "Couldn't create portfolio because: $error";
+    # }
+    # else {
+    #   print "Portfolio $portfolio_name was successfully created! Go <a href=\"portfolio.pl\">here</a> to view your new portfolio.";
+    # }
+  }
 }
 
 
