@@ -758,7 +758,9 @@ eval{@col=ExecSQL($dbuser,$dbpasswd, "select count(*) from new_stocks_daily wher
 if ($@) { 
     return 0;
   }
-  else return $col[0]>0;
+  else
+  { return $col[0]>0;
+}
 }
 
 sub inSymbs{
@@ -768,7 +770,9 @@ eval{@col=ExecSQL($dbuser,$dbpasswd, "select count(*) from cs339.stockssymbols w
 if ($@) { 
     return 0;
   }
-  else return $col[0]>0;
+  else
+  {  return $col[0]>0;
+  }
 }
 
 #
@@ -803,8 +807,7 @@ sub HoldingCount{
     return 0;
     print $@;
   } else {
-   return $col[0];
-}
+   return $col[0];}
 }
 
 #
