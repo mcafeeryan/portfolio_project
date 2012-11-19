@@ -428,8 +428,8 @@ if ($action eq "portfolio-view") {
 if ($action eq "portfolio-transaction") {
   if (!$run) {
     my $portfolio=param('portfolio');
-    print start_form(-name=>'Add Stock'),
-    h2('Add Stock'),
+    print start_form(-name=>'Change Holding'),
+    h2('Buy or sell a stock'),
     "Stock Symbol:", textfield(-name=>'stock_symbol'), p,
     "Quantity:", textfield(-name=>'quantity'), p,
     "Direction: ", radio_group(-name=>'direction',-values=>['Buy','Sell'], -default=>['Buy'],-columns=>2,-rows=>1), p,
@@ -443,20 +443,17 @@ if ($action eq "portfolio-transaction") {
     my $symbol=param('stock_symbol');
     my $quantity=param('quantity');
     my $direction=param('direction');
-    my $stockCount=0;
-    my $stockVal=0;
-    my $error;
+    my $logStr;
     if ($direction eq 'Sell')
     {
-     $stockVal=GetLatest($symbol);
-     $stockCount=HoldingCount($email,$portfolio_name,$symbol);
-     print 'You currently have', $stockCount, ' shares of ', $symbol, ' which is currently valued at ', $stockVal,' per share.';
+      $logStr=StockSell($portfolio_name,$symbol,$quantity);
+      print h2($logStr);
+
     }
     if ($direction eq 'Buy')
     {
-      $stockVal=GetLatest($symbol);
-      print $stockVal, ' is the current price of ', $symbol;
-      GetHistory($symbol);
+     $logStr=StockBuy($portfolio_name,$symbol,$quantity);
+     print h2($logStr);
     }
     # if ($error) {
     #  print "Couldn't create portfolio because: $error";
@@ -696,14 +693,20 @@ sub GetPortfolios {
 }
 
 sub StockBuy {
-  eval {
-    ExecSQL($dbuser, $dbpasswd, "insert into portfolios (name, cash, user_email) values (?,?,?)",undef, @_);
-  };
-  return $@;
+    ($portfolio_name,$symbol,$quantity)=@_;
+   $stockVal=GetLatest($symbol);
+      return $stockVal, ' is the current price of ', $symbol;
+      GetHistory($symbol);
+  # eval {
+  #   ExecSQL($dbuser, $dbpasswd, "insert into portfolios (name, cash, user_email) values (?,?,?)",undef, @_);
+  # };
 }
 
 sub StockSell {
-
+    ($portfolio_name,$symbol,$quantity)=@_;
+     $stockVal=GetLatest($symbol);
+     $stockCount=HoldingCount($email,$portfolio_name,$symbol);
+     return 'You currently have', $stockCount, ' shares of ', $symbol, ' which is currently valued at ', $stockVal,' per share.';
 }
 
 sub GetStocks {
@@ -744,43 +747,46 @@ sub GetHistory{
   my $qvolume;
   my $q;
   my $row;
+  my $symbol;
   $symb=uc($symb);
   if(!UpToDate($symb) && inSymbs($symb))
-  {
-  $q = Finance::QuoteHist::Yahoo->new
+  { $q = Finance::QuoteHist::Yahoo->new
       (
-       symbols    => [qw($symb)],
+       symbols    => $symb,
        start_date => '08/01/2006',
        end_date   => 'today',
       ) or die;
    foreach $row ($q->quotes()) {
        ($qsymbol, $qdate, $qopen, $qhigh, $qlow, $qclose, $qvolume) = @$row;
        $qdate=parsedate($qdate);
-       eval{ExecSQL($dbuser, $dbpasswd, "insert into new_stocks_daily (symbol, timestamp, open,close, high, low, volume) values (?,?,?,?,?,?,?)",undef, $qsymbol,$qdate,$qopen,$qclose,$qhigh,$qlow,$qvolume);};
+       eval{ExecSQL($dbuser, $dbpasswd, "insert into new_stocks_daily (symbol, timestamp, open,close, high, low, volume) values (?,?,?,?,?,?,?)","NA", $qsymbol,$qdate,$qopen,$qclose,$qhigh,$qlow,$qvolume);};
    }
   }
 }
-sub UpToDate{
+ sub UpToDate{
 my ($symb)=@_;
+$symb=uc($symb);
 my @col;
 eval{@col=ExecSQL($dbuser,$dbpasswd, "select count(*) from new_stocks_daily where symbol=rpad(?,16)","COL",$symb);};
 if ($@) { 
     return 0;
   }
   else
-  { return $col[0]>0;
+  { 
+    return $col[0]>0;
 }
 }
-
 sub inSymbs{
 my ($symb)=@_;
+$symb=uc($symb);
 my @col;
 eval{@col=ExecSQL($dbuser,$dbpasswd, "select count(*) from cs339.stockssymbols where symbol=rpad(?,16)","COL",$symb);};
 if ($@) { 
     return 0;
   }
   else
-  {  return $col[0]>0;
+  {
+    return $col[0]>0;
   }
 }
 
@@ -1008,9 +1014,11 @@ sub ExecSQL {
     return @data;
   }
   my @ret;
+  if(!($type eq "NA")){
   while (@data=$sth->fetchrow_array()) {
     push @ret, [@data];
   }
+}
   if (defined $type and $type eq "COL") { 
     @data = map {$_->[0]} @ret;
     $sth->finish();
