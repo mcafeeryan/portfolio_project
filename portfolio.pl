@@ -698,7 +698,7 @@ sub GetStocks {
   return @rows;
 }
 sub GetLatest{
-  my @quoteNew
+  my @quoteNew;
   eval{@quoteNew = ExecSQL($dbuser,$dbpasswd, 'select close from new_stocks_daily where symbol like upper(?) and rownum<2 order by timestamp desc)',"COL",@_);}
 ;
 return @quoteNew;
