@@ -709,18 +709,24 @@ sub GetStocks {
   };
   return @rows;
 }
-sub GetLatest{
+sub GetLatestQuote{
   my ($symb)=@_;
-  my @quoteNew;
-  my $snapshot;
-  eval{@quoteNew = ExecSQL($dbuser,$dbpasswd, 'select close from new_stocks_daily where symbol=rpad(upper(?),16) and rownum<2 order by timestamp desc)',"ROW",$symb);}
-;
-if ($@) { 
-    return 0;
-    print $@
-  } else {
-    return $quoteNew[$0];
-}
+  $symb=uc($symb);
+  my $stats;
+  my @all;
+  my @row
+  $stats = `perl quote.pl $symb`; #get all stats
+
+ @all = split /\n/, $stats;  #split by newlines, put into @all array
+
+ foreach $proc (@all) {   #loop once for each item in @all array
+       #process data here
+    @row= split /\t/, $proc;
+    if(row[0]eq 'close'&&scalar(@row)>1)
+    {
+      return row[1];
+    }
+    else return 0;
 }
 
 #
