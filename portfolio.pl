@@ -43,6 +43,9 @@ use DBI;
 # date strings into the unix epoch time (seconds since 1970)
 #
 use Time::ParseDate;
+use Finance::QuoteHist::Yahoo;
+use Date::Manip;
+use Time::CTime;
 
 BEGIN {
   $ENV{PORTF_DBMS}="oracle";
@@ -453,6 +456,7 @@ if ($action eq "portfolio-transaction") {
     {
       $stockVal=GetLatest($symbol);
       print $stockVal, ' is the current price of ', $symbol;
+      GetHistory($symbol);
     }
     # if ($error) {
     #  print "Couldn't create portfolio because: $error";
@@ -729,6 +733,43 @@ sub GetLatest{
   }
  return 0;
 }
+sub GetHistory{
+  my ($symb)=@_;
+  $symb=uc($symb);
+  if(!UpToDate($symb) && inSymbs($symb))
+  {
+  $q = Finance::QuoteHist::Yahoo->new
+      (
+       symbols    => [qw($symb)],
+       start_date => '08/01/2006',
+       end_date   => 'today',
+      ) or die;
+   foreach $row ($q->quotes()) {
+       ($qsymbol, $qdate, $qopen, $qhigh, $qlow, $qclose, $qvolume) = @$row;
+       $qdate=parsedate($qdate);
+       eval{ExecSQL($dbuser, $dbpasswd, "insert into new_stocks_daily (symbol, timestamp, open,close, high, low, volume) values (?,?,?,?,?,?,?)",undef, $qsymbol,$qdate,$qopen,$qclose,$qhigh,$qlow,$qvolume);};
+   }
+  }
+}
+sub UpToDate{
+my ($symb)=@_;
+my @col;
+eval{@col=ExecSQL($dbuser,$dbpasswd, "select count(*) from new_stocks_daily where symbol=rpad(?,16)","COL",$symb);};
+if ($@) { 
+    return 0;
+  }
+  else return $col[0]>0;
+}
+
+sub inSymbs{
+my ($symb)=@_;
+my @col;
+eval{@col=ExecSQL($dbuser,$dbpasswd, "select count(*) from cs339.stockssymbols where symbol=rpad(?,16)","COL",$symb);};
+if ($@) { 
+    return 0;
+  }
+  else return $col[0]>0;
+}
 
 #
 # Add a user
@@ -752,16 +793,17 @@ sub UserDel {
   eval {ExecSQL($dbuser,$dbpasswd,"delete from portfolio_users where email=?", undef, @_);};
   return $@;
 }
-sub HoldingCount{ 
+sub HoldingCount{
+
   my ($email, $portName,$symb)=@_;
   my @col;
   my $countOf;
-  eval {@col=ExecSQL($dbuser,$dbpasswd, "select count from holdings where user_email=? and portfolio_name=? and symbol=rpad(upper(?),16)","ROW",$email,$portName,$symb);};
+  eval {@col=ExecSQL($dbuser,$dbpasswd, "select holdings.count from holdings where user_email=? and portfolio_name=? and symbol=rpad(upper(?),16)","ROW",$email,$portName,$symb);};
   if ($@) { 
     return 0;
     print $@;
   } else {
-   return $col[$0];
+   return $col[0];
 }
 }
 
