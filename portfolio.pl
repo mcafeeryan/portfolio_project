@@ -717,9 +717,9 @@ sub GetLatest{
 ;
 if ($@) { 
     return 0;
+    print $@
   } else {
-    $snapshot=$quoteNew[$0];
-    return $snapshot;
+    return $quoteNew[$0];
 }
 }
 
@@ -752,9 +752,9 @@ sub HoldingCount{
   eval {@col=ExecSQL($dbuser,$dbpasswd, "select count from holdings where user_email=? and portfolio_name=? and symbol=rpad(upper(?),16)","ROW",$email,$portName,$symb);};
   if ($@) { 
     return 0;
+    print $@;
   } else {
-    $countOf=$col[$0];
-    return $countOf;
+   return $col[$0];
 }
 }
 
