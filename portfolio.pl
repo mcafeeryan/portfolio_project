@@ -719,9 +719,9 @@ sub GetLatestQuote{
 
  @all = split( /\n/, $stats);  #split by newlines, put into @all array
 
- foreach my $proc (@all) {   #loop once for each item in @all array
+ foreach (@all) {   #loop once for each item in @all array
        #process data here
-    @row= split(/\t/, $proc);
+    @row = split(/\t/, $_);
     if(row[0] eq 'close'&& scalar(@row)>1)
     {
       return row[1];
