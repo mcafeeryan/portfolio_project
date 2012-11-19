@@ -709,7 +709,7 @@ sub GetStocks {
   };
   return @rows;
 }
-sub GetLatestQuote{
+sub GetLatest{
   my ($symb)=@_;
   $symb=uc($symb);
   my $stats;
