@@ -693,8 +693,8 @@ sub GetPortfolios {
 }
 
 sub StockBuy {
-    ($portfolio_name,$symbol,$quantity)=@_;
-   $stockVal=GetLatest($symbol);
+   my ($portfolio_name,$symbol,$quantity)=@_;
+    my $stockVal=GetLatest($symbol);
       return $stockVal, ' is the current price of ', $symbol;
       GetHistory($symbol);
   # eval {
@@ -703,9 +703,9 @@ sub StockBuy {
 }
 
 sub StockSell {
-    ($portfolio_name,$symbol,$quantity)=@_;
-     $stockVal=GetLatest($symbol);
-     $stockCount=HoldingCount($email,$portfolio_name,$symbol);
+    my ($portfolio_name,$symbol,$quantity)=@_;
+    my  $stockVal=GetLatest($symbol);
+    my $stockCount=HoldingCount($email,$portfolio_name,$symbol);
      return 'You currently have', $stockCount, ' shares of ', $symbol, ' which is currently valued at ', $stockVal,' per share.';
 }
 
