@@ -726,8 +726,8 @@ sub GetLatestQuote{
     {
       return row[1];
     }
-    else return 0;
-}
+  }
+ return 0;}
 
 #
 # Add a user
