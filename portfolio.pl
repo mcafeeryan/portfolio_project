@@ -440,8 +440,20 @@ if ($action eq "portfolio-transaction") {
     my $symbol=param('stock_symbol');
     my $quantity=param('quantity');
     my $direction=param('direction');
+    my $stockCount=0;
+    my $stockVal=0;
     my $error;
-    print $portfolio_name, ' ', $symbol, ' ', $quantity,' ',$direction;
+    if $direction eq 'Sell'
+    {
+     $stockVal=GetLatest($symbol);
+     $stockCount=HoldingCount($email,$portfolio_name,$symbol);
+     print 'You currently have', $stockCount, ' shares of ', $symbol, ' which is currently valued at ', $stockVal,' per share.';
+    }
+    if $direction eq 'Buy'
+    {
+      $stockVal=GetLatest($symbol);
+      print $stockVal, ' is the current price of ' , $symbol;
+    }
     # if ($error) {
     #  print "Couldn't create portfolio because: $error";
     # }
@@ -698,10 +710,17 @@ sub GetStocks {
   return @rows;
 }
 sub GetLatest{
+  my ($symb)=@_;
   my @quoteNew;
+  my $snapshot
   eval{@quoteNew = ExecSQL($dbuser,$dbpasswd, 'select close from new_stocks_daily where symbol like upper(?) and rownum<2 order by timestamp desc)',"COL",@_);}
 ;
-return @quoteNew;
+if ($@) { 
+    return 0;
+  } else {
+    $snapshot=$quoteNew[$0];
+    return $snapshot;
+}
 }
 
 #
@@ -725,6 +744,18 @@ sub UserAdd {
 sub UserDel { 
   eval {ExecSQL($dbuser,$dbpasswd,"delete from portfolio_users where email=?", undef, @_);};
   return $@;
+}
+sub HoldingCount{ 
+  my ($email, $portName,$symb)=@_;
+  my @col;
+  my $countOf
+  eval {@col=ExecSQL($dbuser,$dbpasswd, "select count from holdings where user_email=? and portfolio_name=? and symbol=upper(?)","COL",$email,$portName,$symb);};
+  if ($@) { 
+    return 0;
+  } else {
+    $countOf=$col[$0];
+    return $countOf;
+}
 }
 
 #
