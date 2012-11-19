@@ -713,7 +713,7 @@ sub GetLatest{
   my ($symb)=@_;
   my @quoteNew;
   my $snapshot;
-  eval{@quoteNew = ExecSQL($dbuser,$dbpasswd, 'select close from new_stocks_daily where symbol=rpad(upper(?),16) and rownum<2 order by timestamp desc)',"COL",$symb);}
+  eval{@quoteNew = ExecSQL($dbuser,$dbpasswd, 'select close from new_stocks_daily where symbol=rpad(upper(?),16) and rownum<2 order by timestamp desc)',"ROW",$symb);}
 ;
 if ($@) { 
     return 0;
@@ -749,7 +749,7 @@ sub HoldingCount{
   my ($email, $portName,$symb)=@_;
   my @col;
   my $countOf;
-  eval {@col=ExecSQL($dbuser,$dbpasswd, "select count from holdings where user_email=? and portfolio_name=? and symbol=rpad(upper(?),16)","COL",$email,$portName,$symb);};
+  eval {@col=ExecSQL($dbuser,$dbpasswd, "select count from holdings where user_email=? and portfolio_name=? and symbol=rpad(upper(?),16)","ROW",$email,$portName,$symb);};
   if ($@) { 
     return 0;
   } else {
