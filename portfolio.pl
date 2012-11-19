@@ -735,6 +735,14 @@ sub GetLatest{
 }
 sub GetHistory{
   my ($symb)=@_;
+  my $qsymbol;
+  my $qdate;
+  my $qopen;
+  my $qhigh;
+  my $qlow;
+  my $qclose;
+  my $qvolume;
+  my $q;
   $symb=uc($symb);
   if(!UpToDate($symb) && inSymbs($symb))
   {
