@@ -717,17 +717,18 @@ sub GetLatestQuote{
   my @row;
   $stats = `perl quote.pl $symb`; #get all stats
 
- @all = split('/\n/', $stats);  #split by newlines, put into @all array
+ @all = split(/\n/, $stats);  #split by newlines, put into @all array
 
- foreach (@all) {   #loop once for each item in @all array
+ foreach (@all){   #loop once for each item in @all array
        #process data here
-    @row = split('/\t/', $_);
-    if(row[0] eq 'close' && scalar(@row)>1)
+    @row = split(/\t/, $_);
+    if ( $row[0] eq 'close' && scalar(@row)>1)
     {
       return row[1];
     }
   }
- return 0;}
+ return 0;
+}
 
 #
 # Add a user
