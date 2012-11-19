@@ -441,6 +441,7 @@ if ($action eq "portfolio-transaction") {
   else {
     my $portfolio_name = param('portfolio_name');
     my $symbol=param('stock_symbol');
+    $symbol=uc($symbol);
     my $quantity=param('quantity');
     my $direction=param('direction');
     my $logStr;
@@ -695,7 +696,7 @@ sub GetPortfolios {
 sub StockBuy {
    my ($portfolio_name,$symbol,$quantity)=@_;
     my $stockVal=GetLatest($symbol);
-      return $stockVal, ' is the current price of ', $symbol;
+      return $stockVal.' is the current price of '.$symbol;
       GetHistory($symbol);
   # eval {
   #   ExecSQL($dbuser, $dbpasswd, "insert into portfolios (name, cash, user_email) values (?,?,?)",undef, @_);
@@ -706,7 +707,8 @@ sub StockSell {
     my ($portfolio_name,$symbol,$quantity)=@_;
     my  $stockVal=GetLatest($symbol);
     my $stockCount=HoldingCount($email,$portfolio_name,$symbol);
-     return 'You currently have', $stockCount, ' shares of ', $symbol, ' which is currently valued at ', $stockVal,' per share.';
+    my $retString='';
+     return 'You currently have'.$stockCount.' shares of '.$symbol.' which is currently valued at '.$stockVal.' per share.';
 }
 
 sub GetStocks {
