@@ -712,8 +712,8 @@ sub GetStocks {
 sub GetLatest{
   my ($symb)=@_;
   my @quoteNew;
-  my $snapshot
-  eval{@quoteNew = ExecSQL($dbuser,$dbpasswd, 'select close from new_stocks_daily where symbol like upper(?) and rownum<2 order by timestamp desc)',"COL",@_);}
+  my $snapshot;
+  eval{@quoteNew = ExecSQL($dbuser,$dbpasswd, 'select close from new_stocks_daily where symbol like upper(?) and rownum<2 order by timestamp desc)',"COL",$symb);}
 ;
 if ($@) { 
     return 0;
