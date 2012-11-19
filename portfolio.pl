@@ -743,6 +743,7 @@ sub GetHistory{
   my $qclose;
   my $qvolume;
   my $q;
+  my $row;
   $symb=uc($symb);
   if(!UpToDate($symb) && inSymbs($symb))
   {
