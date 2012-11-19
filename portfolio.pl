@@ -680,7 +680,10 @@ sub GetPortfolios {
 }
 
 sub StockBuy {
-
+  eval {
+    ExecSQL($dbuser, $dbpasswd, "insert into portfolios (name, cash, user_email) values (?,?,?)",undef, @_);
+  };
+  return $@;
 }
 
 sub StockSell {
@@ -693,6 +696,12 @@ sub GetStocks {
     @rows = ExecSQL($dbuser, $dbpasswd, "select symbol from holdings where portfolio_name=? and user_email=?", "COL", @_, $email);
   };
   return @rows;
+}
+sub GetLatest{
+  my @quoteNew
+  eval{@quoteNew = ExecSQL($dbuser,$dbpasswd, 'select close from new_stocks_daily where symbol like upper(?) and rownum<2 order by timestamp desc)',"COL",@_);}
+;
+return @quoteNew;
 }
 
 #
