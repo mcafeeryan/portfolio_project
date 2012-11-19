@@ -748,7 +748,7 @@ sub UserDel {
 sub HoldingCount{ 
   my ($email, $portName,$symb)=@_;
   my @col;
-  my $countOf
+  my $countOf;
   eval {@col=ExecSQL($dbuser,$dbpasswd, "select count from holdings where user_email=? and portfolio_name=? and symbol=upper(?)","COL",$email,$portName,$symb);};
   if ($@) { 
     return 0;
