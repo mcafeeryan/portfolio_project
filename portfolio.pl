@@ -443,16 +443,16 @@ if ($action eq "portfolio-transaction") {
     my $stockCount=0;
     my $stockVal=0;
     my $error;
-    if $direction eq 'Sell'
+    if ($direction eq 'Sell')
     {
      $stockVal=GetLatest($symbol);
      $stockCount=HoldingCount($email,$portfolio_name,$symbol);
      print 'You currently have', $stockCount, ' shares of ', $symbol, ' which is currently valued at ', $stockVal,' per share.';
     }
-    if $direction eq 'Buy'
+    if ($direction eq 'Buy')
     {
       $stockVal=GetLatest($symbol);
-      print $stockVal, ' is the current price of ' , $symbol;
+      print $stockVal, ' is the current price of ', $symbol;
     }
     # if ($error) {
     #  print "Couldn't create portfolio because: $error";
