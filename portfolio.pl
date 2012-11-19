@@ -724,7 +724,7 @@ sub GetLatest{
     @row = split(/\t/, $_);
     if ( $row[0] eq 'close' && scalar(@row)>1)
     {
-      return row[1];
+      return $row[1];
     }
   }
  return 0;
