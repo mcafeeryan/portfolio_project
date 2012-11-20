@@ -716,7 +716,7 @@ sub StockSell {
 sub GetStocks {
   my @rows;
   eval {
-    @rows = ExecSQL($dbuser, $dbpasswd, "select symbol from holdings where portfolio_name like '?' and user_email like '?'", "COL", @_, $email);
+    @rows = ExecSQL($dbuser, $dbpasswd, "select symbol from holdings where portfolio_name like ? and user_email like ?", "COL", @_, $email);
   };
   return @rows;
 }
