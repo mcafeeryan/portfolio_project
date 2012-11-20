@@ -808,7 +808,7 @@ sub StockSell {
     my $newcash=$cash[0]+$stockVal*$stockCount;
     if($quantity>$stockCount)
         {return "You don't have that many shares! You only have $stockCount";}
-     else {eval{ExecSQL($dbuser, $dbpasswd, "insert into transactions (timestamp, portfolio_name,user_email,symbol,type,quantity) values (?,?,?,?,'sell',?)",undef, $transactionTime,$portfolio_name,$user,$symbol,$quantity);};
+     else {eval{ExecSQL($dbuser, $dbpasswd, "insert into transactions (timestamp, portfolio_name,user_email,symbol,type,quantity) values (?,?,?,?,'sell',?)",undef, $transactionTime,$portfolio_name,$email,$symbol,$quantity);};
      return 'OK, then!';
    }
 }
