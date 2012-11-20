@@ -718,9 +718,9 @@ sub GetStocks {
   my $dquoteEmail=qq($email);
   my $dquotePN=qq(@_);
   eval {
-    @rows = ExecSQL($dbuser, $dbpasswd, "select symbol from holdings where portfolio_name like ? and user_email like ?", "COL", $dquotePN, $dquoteEmail);
+    @rows = ExecSQL($dbuser, $dbpasswd, "select symbol from holdings where portfolio_name= ? and user_email= ?", "COL", $dquotePN, $dquoteEmail);
   };
-  return qw(@rows);
+  return @rows;
 }
 sub GetLatest{
   my ($symb)=@_;
