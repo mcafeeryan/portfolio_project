@@ -810,6 +810,7 @@ sub StockSell {
         {return "You don't have that many shares! You only have $stockCount";}
      else {eval{ExecSQL($dbuser, $dbpasswd, "insert into transactions (timestamp, portfolio_name,user_email,symbol,type,quantity) values (?,?,?,?,'sell',?)",undef, $transactionTime,$portfolio_name,$user,$symbol,$quantity);};
      return 'OK, then!';
+   }
 }
 
 sub GetStocks {
