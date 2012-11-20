@@ -719,7 +719,7 @@ sub GetStocks {
   my $dquotePN=qq(@_);
   eval {
     #@rows = ExecSQL($dbuser, $dbpasswd, "select symbol from holdings where portfolio_name= ? and user_email= ?", "COL", $dquotePN, $dquoteEmail);
-    @rows = ExecSQL($dbuser, $dbpasswd, "select symbol from holdings", "COL");
+    @rows = ExecSQL($dbuser, $dbpasswd, "select count from holdings", "COL");
   };
   return @rows;
 }
