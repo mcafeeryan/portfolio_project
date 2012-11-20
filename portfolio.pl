@@ -715,8 +715,8 @@ sub StockSell {
 
 sub GetStocks {
   my @rows;
-  my $dquoteEmail=q($email);
-  my $dquotePN=q(@_);
+  my $dquoteEmail=qq($email);
+  my $dquotePN=qq(@_);
   eval {
     @rows = ExecSQL($dbuser, $dbpasswd, "select symbol from holdings where portfolio_name like ? and user_email like ?", "COL", $dquotePN, $dquoteEmail);
   };
