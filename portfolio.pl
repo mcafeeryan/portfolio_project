@@ -804,7 +804,7 @@ sub StockSell {
     my ($portfolio_name,$symbol,$quantity)=@_;
     my  $stockVal=GetLatest($symbol);
     my $stockCount=HoldingCount($email,$portfolio_name,$symbol);
-    my @cash = ExecSQL($dbuser,$dbpasswd, "select cash from portfolios where name=? and user_email=?", "ROW", $portfolio, $email);
+    my @cash = ExecSQL($dbuser,$dbpasswd, "select cash from portfolios where name=? and user_email=?", "ROW", $portfolio_name, $email);
     my $newcash=$cash[0]+$stockVal*$stockCount;
     if($quantity>$stockCount)
         {return "You don't have that many shares! You only have $stockCount";}
