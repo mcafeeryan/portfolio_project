@@ -752,12 +752,11 @@ sub GetHistory{
   my $row;
   my $symbol;
   $symb=uc($symb);
-  $symb=qw($symb);
   if(!UpToDate($symb) && inSymbs($symb))
   { $q = Finance::QuoteHist::Yahoo->new
       (
        symbols    => $symb,
-       start_date => '11/10/2012',
+       start_date => '08/01/2006',
        end_date   => 'today',
       ) or die;
    foreach $row ($q->quotes()) {
