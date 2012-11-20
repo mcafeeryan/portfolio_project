@@ -696,8 +696,9 @@ sub GetPortfolios {
 sub StockBuy {
    my ($portfolio_name,$symbol,$quantity)=@_;
     my $stockVal=GetLatest($symbol);
-      return $stockVal.' is the current price of '.$symbol;
       GetHistory($symbol);
+      return $stockVal.' is the current price of '.$symbol;
+      
   # eval {
   #   ExecSQL($dbuser, $dbpasswd, "insert into portfolios (name, cash, user_email) values (?,?,?)",undef, @_);
   # };
@@ -751,11 +752,12 @@ sub GetHistory{
   my $row;
   my $symbol;
   $symb=uc($symb);
+  $symb=qw($symb);
   if(!UpToDate($symb) && inSymbs($symb))
   { $q = Finance::QuoteHist::Yahoo->new
       (
        symbols    => $symb,
-       start_date => '08/01/2006',
+       start_date => '11/10/2012',
        end_date   => 'today',
       ) or die;
    foreach $row ($q->quotes()) {
