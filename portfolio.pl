@@ -24,6 +24,7 @@ use strict;
 # We'll use the "standard" procedural interface to CGI
 # instead of the OO default interface
 use CGI qw(:standard);
+use Time::Local;
 
 
 # The interface to the database.  The interface is essentially
@@ -404,9 +405,107 @@ if ($action eq "portfolio-view") {
     print "<li><a href=\"#\">$_</a></li>";
     print "</br>";
   } 
+  #hard-coded stock view
+  print "<a href=\"portfolio.pl?act=show_stock&&stock=AAPL\">Stock view example</a></br>";
   print "<a href=\"portfolio.pl?act=portfolio-transaction&portfolio=$portfolio\">Buy or sell stock.</a>";
 }
 
+
+if ($action eq "show_stock") {
+  if(!$run){
+  my $stock = param('stock'); 
+
+  # the minimal timestamp of this stock 
+  my  @timestamps = ExecSQL($dbuser, $dbpasswd, "select min(timestamp) from cs339.stocksdaily where symbol=rpad(?, 16)",undef, $stock);
+  my $min_timestamp = $timestamps[0];
+
+  # get the year of minimal timestamp
+  my $stock_startyear = (localtime(${$min_timestamp}[0]))[5]+1900;  
+  my $time = time;
+  my $stock_currentyear = (localtime($time))[5]+1900;
+
+  # construct years range
+  my @stock_years = ($stock_startyear..$stock_currentyear);
+
+  # construct months range
+  #my @stock_months = ('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'Semptember', 'October', 'Novermber', 'December');
+  my @stock_months = (01..12);
+  # construct days range
+  my @stock_days = (1..31);
+
+  print start_form(-method=>'POST',
+                   -action=>'/~nwu583/portfolio/plot_stock.pl?'
+                  );
+  print "From: ";
+  print popup_menu(-name=>'start_year',
+                   -value=>\@stock_years,
+       -style=>'width:80px'
+                  );
+
+  print popup_menu(-name=>'start_month',
+                   -value=>\@stock_months,
+                   -style=>'width:80px'
+                  );
+
+   print popup_menu(-name=>'start_day',
+                   -value=>\@stock_days,
+                   -style=>'width:80px'
+                  );
+  print "</br>To: &nbsp&nbsp&nbsp&nbsp";
+  print popup_menu(-name=>'end_year',
+                   -value=>\@stock_years,
+       -style=>'width:80px'
+                  );
+
+  print popup_menu(-name=>'end_month',
+                   -value=>\@stock_months,
+                   -style=>'width:80px'
+                  );
+
+   print popup_menu(-name=>'end_day',
+                   -value=>\@stock_days,
+                   -style=>'width:80px'
+                  );
+   print "</br>Type:&nbsp";
+   print popup_menu(-name=>'type',
+                    -value=>['text','plot'],
+                    -style=>'width:80px'
+                   );
+   print hidden(-name=>'symbol',
+                -default=>$stock
+               );
+   print hidden(-name=>'act',
+                -default=>['show_stock']
+               ); 
+   print hidden(-name=>'run',
+                -default=>['1']
+               ); 
+   print submit(-name=>"show-plot",
+                -value=>"Show Plot"
+               );
+   print end_form;
+  }else{
+    my $stock = param('stock');
+    my $type =param('type');
+    my $start_year = param('start_year');
+    my $start_month = param('start_month');
+    my $start_day = param('start_day');
+    my $end_year = param('end_year');
+    my $end_month = param('end_month');
+    my $end_day = param('end_day');
+    
+    # 
+    # construct start and end date, then use timelocal function to convert     # to Unix time.
+    #
+    my @start_date = (0,0,0,$start_day, $start_month, $start_year);
+    my @end_date = (0,0,0, $end_day, $end_month, $end_year);
+    my $start_timestamp = timelocal(@start_date);
+    my $end_timestamp = timelocal(@end_date);
+    
+    my $cgi = new CGI;
+    print $cgi->redirect(-uri=> "http://murphy.wot.eecs.northwestern.edu/~msh986/portfolio/plot_stock.pl?type=$type&&stock=$stock&&start=$start_timestamp&&end=$end_timestamp"); 
+  }
+}
 #
 # PORTFOLIO TRANSACTION VIEW (Buy or sell stock)
 # buy logic checks:
@@ -698,19 +797,19 @@ sub StockBuy {
     my $stockVal=GetLatest($symbol);
       GetHistory($symbol);
       return $stockVal.' is the current price of '.$symbol;
-      
-  # eval {
-  #   ExecSQL($dbuser, $dbpasswd, "insert into portfolios (name, cash, user_email) values (?,?,?)",undef, @_);
-  # };
 }
 
 sub StockSell {
+    my $transactionTime=time;
     my ($portfolio_name,$symbol,$quantity)=@_;
     my  $stockVal=GetLatest($symbol);
     my $stockCount=HoldingCount($email,$portfolio_name,$symbol);
+    my @cash = ExecSQL($dbuser,$dbpasswd, "select cash from portfolios where name=? and user_email=?", "ROW", $portfolio, $email);
+    my $newcash=$cash[0]+$stockVal*$stockCount;
     if($quantity>$stockCount)
         {return "You don't have that many shares! You only have $stockCount";}
-     else {return "You currently have $stockCount shares of $symbol which is currently valued at $stockVal per share.";}
+     else {eval{ExecSQL($dbuser, $dbpasswd, "insert into transactions (timestamp, portfolio_name,user_email,symbol,type,quantity) values (?,?,?,?,'sell',?)",undef, $transactionTime,$portfolio_name,$user,$symbol,$quantity);};
+     return 'OK, then!';
 }
 
 sub GetStocks {
