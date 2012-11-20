@@ -708,7 +708,8 @@ sub StockSell {
     my ($portfolio_name,$symbol,$quantity)=@_;
     my  $stockVal=GetLatest($symbol);
     my $stockCount=HoldingCount($email,$portfolio_name,$symbol);
-    my $retString='';
+    if($quantity>$stockVal)
+    return "You don't have that many shares!"
      return 'You currently have'.$stockCount.' shares of '.$symbol.' which is currently valued at '.$stockVal.' per share.';
 }
 
@@ -820,10 +821,10 @@ sub HoldingCount{
   my ($email, $portName,$symb)=@_;
   my @col;
   my $countOf;
-  eval {@col=ExecSQL($dbuser,$dbpasswd, "select holdings.count from holdings where user_email=? and portfolio_name=? and symbol=rpad(upper(?),16)","ROW",$email,$portName,$symb);};
-  if ($@) { 
+  $symb=uc($symb);
+  eval {@col=ExecSQL($dbuser,$dbpasswd, "select holdings.count from holdings where user_email='?' and portfolio_name=? and symbol=rpad(?,16)","COL",$email,$portName,$symb);};
+  if ($@) {
     return 0;
-    print $@;
   } else {
    return $col[0];}
 }
