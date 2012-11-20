@@ -709,7 +709,7 @@ sub StockSell {
     my  $stockVal=GetLatest($symbol);
     my $stockCount=HoldingCount($email,$portfolio_name,$symbol);
     if($quantity>$stockCount)
-        {return "You don't have that many shares!";}
+        {return "You don't have that many shares! You only have $stockCount";}
      else {return "You currently have $stockCount shares of $symbol which is currently valued at $stockVal per share.";}
 }
 
