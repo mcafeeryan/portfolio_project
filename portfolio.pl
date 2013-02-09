@@ -292,8 +292,7 @@ print "<div class=\"navbar navbar-fixed-top\">";
 print "<div class=\"navbar-inner\">";
 print "<div class=\"container\">";
 print "<ul class=\"nav\">";
-print
-"<li><a href=\"portfolio.pl\" style=\"font-weight:bold; margin-left:-100px\">Portfolio Manager</a></li>";
+print "<li><a href=\"portfolio.pl\" style=\"font-weight:bold; margin-left:-100px\">Portfolio Manager</a></li>";
 if ($email) {
 	print "<li style=\"margin-top:10px\">You are logged in as $user</li>";
 }
@@ -304,19 +303,15 @@ if ( !$email ) {
 }
 else {
 	print "<li class=\"dropdown\">";
-	print
-"<a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">Portfolios<b class=\"caret\"></b></a>";
-	print
-	  "<ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dLabel\">";
+	print "<a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">Portfolios<b class=\"caret\"></b></a>";
+	print "<ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dLabel\">";
 	if ( ( $#portfolios + 1 ) >= 1 ) {
 		foreach (@portfolios) {
-			print
-"<li><a href=\"portfolio.pl?act=portfolio-view&portfolio=$_\">$_</a></li>";
+			print "<li><a href=\"portfolio.pl?act=portfolio-view&portfolio=$_\">$_</a></li>";
 		}
 	}
 	print "<li class=\"divider\"></li>";
-	print
-"<li><a class=\"btn btn-success\" href=\"portfolio.pl?act=add-portfolio\">Add</a></li>";
+	print "<li><a class=\"btn btn-success\" href=\"portfolio.pl?act=add-portfolio\">Add</a></li>";
 	print "</ul>";
 	print "</a>";
 	print "</li>";
@@ -361,8 +356,7 @@ if ( $action eq "login" ) {
 		  password_field( -name => 'passwd' ), p,
 		  hidden( -name => 'act', default => ['login'] ),
 		  hidden( -name => 'run', default => ['1'] ), submit, end_form;
-		print
-"<p>Not registered? <a href=\"portfolio.pl?act=sign-up\">Sign up here</a></p>";
+		print "<p>Not registered? <a href=\"portfolio.pl?act=sign-up\">Sign up here</a></p>";
 	}
 	print "</div>";
 }
@@ -383,25 +377,20 @@ if ( $action eq "base" ) {
 	#
 	#
 	if ( !$email ) {
-		print
-"<h2 class=\"page-title\">You are not signed in, but you can <a href=\"portfolio.pl?act=login\">login</a></h2>";
+		print "<h2 class=\"page-title\">You are not signed in, but you can <a href=\"portfolio.pl?act=login\">login</a></h2>";
 	}
 	else {
 		print "<h2 class=\"page-title\">Welcome to Portfolio Manager!</h2>";
 		if ( ( $#portfolios + 1 ) < 1 ) {
-			print
-"<p>Add a portfolio <a href=\"portfolio.pl?act=add-portfolio\">here</a> to get started.";
+			print "<p>Add a portfolio <a href=\"portfolio.pl?act=add-portfolio\">here</a> to get started.";
 		}
 		else {
-			print
-"<p>Below are your portfolios, click to access them and view/modify their contents:</p>";
+			print "<p>Below are your portfolios, click to access them and view/modify their contents:</p>";
 			foreach (@portfolios) {
-				print
-"<li><a href=\"portfolio.pl?act=portfolio-view&portfolio=$_\">$_</a></li>";
+				print "<li><a href=\"portfolio.pl?act=portfolio-view&portfolio=$_\">$_</a></li>";
 				print "</br>";
 			}
-			print
-"<a style=\"margin-top:15px\" class=\"btn btn-success\" href=\"portfolio.pl?act=add-portfolio\">Add another portfolio</a>";
+			print "<a style=\"margin-top:15px\" class=\"btn btn-success\" href=\"portfolio.pl?act=add-portfolio\">Add another portfolio</a>";
 		}
 	}
 
@@ -423,19 +412,13 @@ if ( $action eq "portfolio-view" ) {
 	print "</br>";
 	my @stocks = GetStocks($portfolio);
 	foreach (@stocks) {
-				print
-"</br><li><a href=\"portfolio.pl?act=view-stock&portfolio=$portfolio&stock=$_\">$_</a></li>";
+				print "</br><li><a href=\"portfolio.pl?act=view-stock&portfolio=$portfolio&stock=$_\">$_</a></li>";
 	}
-
-
-# 	#hard-coded stock view
-# 	print
-# "</br><a href=\"portfolio.pl?act=show_stock&&stock=AAPL\">Stock view example</a></br>";
-	print
-"<a href=\"portfolio.pl?act=portfolio-transaction&portfolio=$portfolio\">Buy or sell stock.</a></br>";
-	print
-"</br><p><a href=\"portfolio.pl?act=cash-add&portfolio=$portfolio\">Add</a> or <a href=\"portfolio.pl?act=cash-withdraw&portfolio=$portfolio\">Remove</a> cash from this portfolio.</p></br>";
+	print "<a href=\"portfolio.pl?act=portfolio-transaction&portfolio=$portfolio\">Buy or sell stock.</a></br>";
+	print "</br><p><a href=\"portfolio.pl?act=cash-add&portfolio=$portfolio\">Add</a> or <a href=\"portfolio.pl?act=cash-withdraw&portfolio=$portfolio\">Remove</a> cash from this portfolio.</p></br>";
 }
+
+
 if ( $action eq "view-stock" ) {
 		my $stock = param('stock');
 		my $portfolio_name=param('portfolio');
@@ -446,6 +429,7 @@ if ( $action eq "view-stock" ) {
 	  print "<p>You have ".$stockCount." shares of ".$stock." currently valued at \$".$stockVal." per share. The CV for this stock is: ".$stockCV." and the beta is: ".$stockB."</p>";
 	print "</br><a href=\"portfolio.pl?act=show_stock&stock=$stock\">View historic data or graphs of $stock</a></br>";
 }
+
 if ( $action eq "cash-add" ) {
 	my $portfolio=param('portfolio');
 	if ( !$run ) {
@@ -466,8 +450,10 @@ if ( $action eq "cash-add" ) {
 		else {print "<p>You successfully added \$".$cash." to your account.</br>Use the navigation above to return to the main menu.</p>";}
 	}
 }
+
 if ( $action eq "cash-withdraw" ) {
 	my $portfolio=param('portfolio');
+	
 	if ( !$run ) {
 
 		print start_form( -name => 'Add Cash' ), h2('Add Cash to Portfolio'),
@@ -477,6 +463,7 @@ if ( $action eq "cash-withdraw" ) {
 		  hidden( -name => 'act', -default => ['cash-withdraw'] ), submit,
 		  end_form, hr;
 	}
+	
 	else {
 		my @col=ExecSQL( $dbuser, $dbpasswd,
 		"select cash from portfolios where name=? and user_email=?",
@@ -485,13 +472,15 @@ if ( $action eq "cash-withdraw" ) {
 		my $cash           = param('cash');
 		my $cashIn= $col[0];
 		if($cashIn>$cash){
-		eval{@col2=ExecSQL($dbuser,$dbpasswd,"update portfolios set cash = cash-$cash where user_email=? and name=?",undef,$email,$portfolio);};
-		if($@)
-		{print "<p>Transaction failed. Use navigation above to return to main menu.</p>";}
-		else {print "<p>You successfully withdrew \$".$cash." to your account. </br>Use the navigation above to return to the main menu.</p>";}}
-		else{print "<p>You don't have that much cash to withdraw from your account. Please use the above menus to return to your accounts.</p>";
-	}}
+			eval{@col2=ExecSQL($dbuser,$dbpasswd,"update portfolios set cash = cash-$cash where user_email=? and name=?",undef,$email,$portfolio);};
+			if($@)
+				{print "<p>Transaction failed. Use navigation above to return to main menu.</p>";}
+			else {print "<p>You successfully withdrew \$".$cash." to your account. </br>Use the navigation above to return to the main menu.</p>";}
+		}
+		else {print "<p>You don't have that much cash to withdraw from your account. Please use the above menus to return to your accounts.</p>";}
+	}
 }
+
 if ( $action eq "show_stock" ) {
 	if ( !$run ) {
 		my $stock = param('stock');
@@ -500,7 +489,7 @@ if ( $action eq "show_stock" ) {
 		my @timestamps = ExecSQL(
 			$dbuser,
 			$dbpasswd,
-"select min(timestamp) from cs339.stocksdaily where symbol=rpad(?, 16)",
+			"select min(timestamp) from cs339.stocksdaily where symbol=rpad(?, 16)",
 			undef,
 			$stock
 		);
@@ -514,8 +503,7 @@ if ( $action eq "show_stock" ) {
 		# construct years range
 		my @stock_years = ( $stock_startyear .. $stock_currentyear );
 
-# construct months range
-#my @stock_months = ('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'Semptember', 'October', 'Novermber', 'December');
+		# construct months range
 		my @stock_months = ( 01 .. 12 );
 
 		# construct days range
@@ -599,9 +587,9 @@ if ( $action eq "show_stock" ) {
 		{
 			$infotype='table';
 		}
-#
-# construct start and end date, then use timelocal function to convert     # to Unix time.
-#
+	#
+	# construct start and end date, then use timelocal function to convert     # to Unix time.
+	#
 
 		my @start_date = ( 0, 0, 0, $start_day, $start_month, $start_year );
 		my @end_date   = ( 0, 0, 0, $end_day,   $end_month,   $end_year );
@@ -610,8 +598,6 @@ if ( $action eq "show_stock" ) {
 
 		# my $cgi = new CGI;
 		print "<p>The data you requested: </p></br><p><a href=\"plot_stock.pl?type=$type&stock=$stock&start=$start_timestamp&end=$end_timestamp\" >$infotype</a></p>";
-# "http://murphy.wot.eecs.northwestern.edu/~msh986/portfolio/plot_stock.pl?type=$type&stock=$stock&start=$start_timestamp&end=$end_timestamp"
-		# );
 	}
 }
 
@@ -680,105 +666,7 @@ if ( $action eq "portfolio-transaction" ) {
 }
 
 #
-#
-# NEAR
-#
-#
-# Nearby committees, candidates, individuals, and opinions
-#
-#
-
-# Note that the individual data should integrate the FEC data and the more
-# precise crowd-sourced location data.   The opinion data is completely crowd-sourced
-#
-# This form intentionally avoids decoration since the expectation is that
-# the client-side javascript will invoke it to get raw data for overlaying on the map
-#
-#
-if ( $action eq "near" ) {
-	my $latne     = param("latne");
-	my $longne    = param("longne");
-	my $latsw     = param("latsw");
-	my $longsw    = param("longsw");
-	my $whatparam = param("what");
-	my $format    = param("format");
-	my $cycle     = param("cycle");
-	my %what;
-
-	$format = "table" if !defined($format);
-
-#select distinct cycle from cs339.committee_master where cycle in ('1112','0506');
-	$cycle = "'1112'" if !defined($cycle);
-
-	if ( !defined($whatparam) || $whatparam eq "all" ) {
-		%what = (
-			committees  => 1,
-			candidates  => 1,
-			individuals => 1,
-			opinions    => 1
-		);
-	}
-	else {
-		map { $what{$_} = 1 } split( /\s*,\s*/, $whatparam );
-	}
-
-	if ( $what{committees} ) {
-		my ( $str, $error ) =
-		  Committees( $latne, $longne, $latsw, $longsw, $cycle, $format );
-		if ( !$error ) {
-			if ( $format eq "table" ) {
-				print "<h2>Nearby committees</h2>$str";
-			}
-			else {
-				print $str;
-			}
-		}
-	}
-	if ( $what{candidates} ) {
-		my ( $str, $error ) =
-		  Candidates( $latne, $longne, $latsw, $longsw, $cycle, $format );
-		if ( !$error ) {
-			if ( $format eq "table" ) {
-				print "<h2>Nearby candidates</h2>$str";
-			}
-			else {
-				print $str;
-			}
-		}
-	}
-	if ( $what{individuals} ) {
-		my ( $str, $error ) =
-		  Individuals( $latne, $longne, $latsw, $longsw, $cycle, $format );
-		if ( !$error ) {
-			if ( $format eq "table" ) {
-				print "<h2>Nearby individuals</h2>$str";
-			}
-			else {
-				print $str;
-			}
-		}
-	}
-	if ( $what{opinions} ) {
-		my ( $str, $error ) =
-		  Opinions( $latne, $longne, $latsw, $longsw, $cycle, $format );
-		if ( !$error ) {
-			if ( $format eq "table" ) {
-				print "<h2>Nearby opinions</h2>$str";
-			}
-			else {
-				print $str;
-			}
-		}
-	}
-}
-
-#
 # Sign up
-#
-# User Add functionaltiy
-#
-#
-#
 #
 if ( $action eq "sign-up" ) {
 	if ( !$run ) {
@@ -800,8 +688,7 @@ if ( $action eq "sign-up" ) {
 			print "Can't add user because: $error";
 		}
 		else {
-			print
-"$name was successfully signed up! Now <a href=\"portfolio.pl?act=login\">log in to start managing your portfolio!</a>\n";
+			print "$name was successfully signed up! Now <a href=\"portfolio.pl?act=login\">log in to start managing your portfolio!</a>\n";
 		}
 	}
 }
@@ -824,8 +711,7 @@ if ( $action eq "add-portfolio" ) {
 			print "Couldn't create portfolio because: $error";
 		}
 		else {
-			print
-"Portfolio $portfolio_name was successfully created! Go <a href=\"portfolio.pl\">here</a> to view your new portfolio.";
+			print "Portfolio $portfolio_name was successfully created! Go <a href=\"portfolio.pl\">here</a> to view your new portfolio.";
 		}
 	}
 }
@@ -920,6 +806,7 @@ sub GetPortfolios {
 	};
 	return @rows;
 }
+
 sub GetBeta{
 	return 0;
 }
@@ -956,7 +843,7 @@ sub StockBuy {
 			ExecSQL(
 				$dbuser,
 				$dbpasswd,
-"insert into holdings (symbol, count, portfolio_name, user_email) values (?,?,?,?)",
+				"insert into holdings (symbol, count, portfolio_name, user_email) values (?,?,?,?)",
 				undef,
 				$symbol,
 				$quantity,
@@ -970,7 +857,7 @@ sub StockBuy {
 			ExecSQL(
 				$dbuser,
 				$dbpasswd,
-"update holdings set count=? where symbol=rpad(?,16) and user_email=? and portfolio_name=?",
+				"update holdings set count=? where symbol=rpad(?,16) and user_email=? and portfolio_name=?",
 				undef, $newQty, $symbol, $email, $portfolio_name
 			);
 		};
@@ -979,7 +866,7 @@ sub StockBuy {
 			ExecSQL(
 				$dbuser,
 				$dbpasswd,
-"update portfolios set cash=? where user_email=? and name=?",
+				"update portfolios set cash=? where user_email=? and name=?",
 				undef, $newcash, $email, $portfolio_name
 			);
 		};
@@ -1007,7 +894,7 @@ sub StockSell {
 			ExecSQL(
 				$dbuser,
 				$dbpasswd,
-"insert into transactions (timestamp, portfolio_name,user_email,symbol,type,quantity) values (?,?,?,?,'sell',?)",
+				"insert into transactions (timestamp, portfolio_name,user_email,symbol,type,quantity) values (?,?,?,?,'sell',?)",
 				undef,
 				$transactionTime,
 				$portfolio_name,
@@ -1021,7 +908,7 @@ sub StockSell {
 			ExecSQL(
 				$dbuser,
 				$dbpasswd,
-"delete from holdings where symbol=rpad(?,16) and user_email=? and portfolio_name=?",
+				"delete from holdings where symbol=rpad(?,16) and user_email=? and portfolio_name=?",
 				undef, $symbol, $email, $portfolio_name
 			);
 		};
@@ -1032,7 +919,7 @@ sub StockSell {
 			ExecSQL(
 				$dbuser,
 				$dbpasswd,
-"update holdings set count=? where symbol=rpad(?,16) and user_email=? and portfolio_name=?",
+				"update holdings set count=? where symbol=rpad(?,16) and user_email=? and portfolio_name=?",
 				undef, $remaining, $symbol, $email, $portfolio_name
 			);
 		};
@@ -1041,7 +928,7 @@ sub StockSell {
 			ExecSQL(
 				$dbuser,
 				$dbpasswd,
-"update portfolios set cash=? where user_email=? and name=?",
+				"update portfolios set cash=? where user_email=? and name=?",
 				undef, $newcash, $email, $portfolio_name
 			);
 		};
@@ -1058,7 +945,7 @@ sub GetStocks {
 		@rows = ExecSQL(
 			$dbuser,
 			$dbpasswd,
-"select symbol from holdings where portfolio_name= ? and user_email= ?",
+			"select symbol from holdings where portfolio_name= ? and user_email= ?",
 			"COL",
 			$dquotePN,
 			$dquoteEmail
@@ -1086,6 +973,7 @@ sub GetLatest {
 	}
 	return 0;
 }
+
 sub GetInfo{
 	my ($symb)=@_;
 	my @row;
@@ -1098,6 +986,7 @@ sub GetInfo{
 	}
 	return ($row[2]/$row[1]);
 }
+
 sub GetHistory {
 	my ($symb) = @_;
 	my $qsymbol;
@@ -1127,7 +1016,7 @@ sub GetHistory {
 				ExecSQL(
 					$dbuser,
 					$dbpasswd,
-"insert into new_stocks_daily (symbol, timestamp, open,close, high, low, volume) values (?,?,?,?,?,?,?)",
+					"insert into new_stocks_daily (symbol, timestamp, open,close, high, low, volume) values (?,?,?,?,?,?,?)",
 					"NA",
 					$qsymbol,
 					$qdate,
@@ -1181,6 +1070,33 @@ sub inSymbs {
 	}
 }
 
+sub HoldingCount {
+
+	my ( $email, $portName, $symb ) = @_;
+	my @col;
+	my $countOf;
+	$symb = uc($symb);
+	eval {
+		@col = ExecSQL(
+			$dbuser,
+			$dbpasswd,
+			"select count from holdings where user_email=? and portfolio_name=? and symbol=rpad(?,16)",
+			"COL",
+			$email,
+			$portName,
+			$symb
+		);
+	};
+	if ($@) {
+		return 0;
+	}
+	else {
+		$countOf = 0;
+		$countOf = $countOf + $col[0];
+		return $countOf;
+	}
+}
+
 #
 # Add a user
 # call with name,password,email
@@ -1209,33 +1125,6 @@ sub UserDel {
 			undef, @_ );
 	};
 	return $@;
-}
-
-sub HoldingCount {
-
-	my ( $email, $portName, $symb ) = @_;
-	my @col;
-	my $countOf;
-	$symb = uc($symb);
-	eval {
-		@col = ExecSQL(
-			$dbuser,
-			$dbpasswd,
-"select count from holdings where user_email=? and portfolio_name=? and symbol=rpad(?,16)",
-			"COL",
-			$email,
-			$portName,
-			$symb
-		);
-	};
-	if ($@) {
-		return 0;
-	}
-	else {
-		$countOf = 0;
-		$countOf = $countOf + $col[0];
-		return $countOf;
-	}
 }
 
 #
