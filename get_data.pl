@@ -53,6 +53,12 @@ $sql.= " where symbol = '$symbol'";
 $sql.= " and timestamp >= $from" if $from;
 $sql.= " and timestamp <= $to" if $to;
 $sql.= " order by timestamp";
+$sql.= " union all";
+$sql = " select " . join(",",@fields) . " from ".GetStockPrefix()."rpm267.new_stocks_daily";
+$sql.= " where symbol = '$symbol'";
+$sql.= " and timestamp >= $from" if $from;
+$sql.= " and timestamp <= $to" if $to;
+$sql.= " order by timestamp";
 
 my $data = ExecStockSQL("TEXT",$sql);
 

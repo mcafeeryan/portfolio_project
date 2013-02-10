@@ -811,6 +811,7 @@ sub GetBeta{
 	return 0;
 }
 
+# StockBuy ...buys stock
 sub StockBuy {
 	my $transactionTime = time();
 	my ( $portfolio_name, $symbol, $quantity ) = @_;
@@ -820,7 +821,7 @@ sub StockBuy {
 	  ExecSQL( $dbuser, $dbpasswd,
 		"select cash from portfolios where name=? and user_email=?",
 		"ROW", $portfolio_name, $email );
-	my $newcash=$cash[0]-$stockVal*$quantity;
+	my $newcash=$cash[0]-($stockVal*$quantity);
 	my $newQty=$stockCount+$quantity;
 	if($newcash<0)
 	{return "You don't have enough cash in this portfolio to buy that many shares.";}
@@ -871,7 +872,7 @@ sub StockBuy {
 			);
 		};
 
-		return "You now have".$newcash." dollars in your portfolio after this purchase.";
+		return "You now have ".$newcash." dollars in the ".$portfolio_name." portfolio after this purchase.";
 	}
 }
 
@@ -885,7 +886,7 @@ sub StockSell {
 	  ExecSQL( $dbuser, $dbpasswd,
 		"select cash from portfolios where name=? and user_email=?",
 		"ROW", $portfolio_name, $email );
-	my $newcash = $cash[0] + $stockVal * $quantity;
+	my $newcash = $cash[0] + ($stockVal * $quantity);
 	if ( $quantity > $stockCount ) {
 		return "You don't have that many shares! You only have ".$stockCount.".";
 	}
