@@ -4,9 +4,9 @@ $#ARGV==2 or die "usage: shannon_ratchet.pl symbol initialcash tradingcost\n";
 
 ($symbol, $initialcash,$tradecost) = @ARGV;
 
-my $symbol = param('symbol');
-my $initialcash = param('initialcash');
-my $tradecost = param('tradecost');
+#my $symbol = param('symbol');
+#my $initialcash = param('initialcash');
+#my $tradecost = param('tradecost');
 
 $lastcash=$initialcash;
 $laststock=0;

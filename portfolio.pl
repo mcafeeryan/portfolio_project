@@ -934,6 +934,20 @@ sub GetPortfolios {
 }
 
 sub GetBeta{
+	# my @rows;
+	# my $from = undef;
+	# my $to = undef;
+	# my $symbol = undef;
+	# eval {
+	# 	@rows = 
+	# 		ExecSQL( $dbuser, $dbpasswd, "select regr_slope(t1.close, t2.close) from 
+	# 										(select close, timestamp from
+	# 											(select symbol, close, timestamp from cs339.StocksDaily
+	# 												union all
+	# 												select symbol, close, timestamp from rpm267.new_stocks_daily)
+	# 										where symbol='$symbol' and timestamp>=$from and timestamp=$from and timestamp<=$to
+	# 										group by timestamp) t2 on t1.timestamp = t2.timestamp");
+	# }
 	return 0;
 }
 
