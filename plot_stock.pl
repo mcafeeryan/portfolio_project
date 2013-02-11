@@ -29,7 +29,7 @@ BEGIN {
 use stock_data_access;
 
 my $type = param('type');
-my $symbol = param('symbol');
+my $symbol = param('stock');
 my $start_timestamp=param('start_timestamp');
 my $end_timestamp=param('end_timestamp');
 my $start_day=param('start_day');
