@@ -574,7 +574,7 @@ if ( $action eq "show_stock" ) {
 		print end_form;
 	}
 	else {
-		my $stock       = param('stock');
+		my $stock       = param('symbol');
 		my $type        = param('type');
 		my $start_year  = param('start_year');
 		my $start_month = param('start_month');
@@ -1039,14 +1039,14 @@ sub UpToDate {
 	eval {
 		@col =
 		  ExecSQL( $dbuser, $dbpasswd,
-			"select count(*) from new_stocks_daily where symbol=rpad(?,16)",
+			"select max(timestamp) from new_stocks_daily where symbol=rpad(?,16)",
 			"COL", $symb );
 	};
 	if ($@) {
 		return 0;
 	}
 	else {
-		return $col[0] > 0;
+		return ($col[0] >= (time()-8640));
 	}
 }
 
