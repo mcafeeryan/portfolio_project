@@ -649,7 +649,7 @@ if ( $action eq "future_stock" ) {
 		print end_form;
 	}
 	else {
-		my $stock       = param('symbol');
+		my $stock       = param('stock');
 		my $type        = param('type');
 		my $start_year  = param('start_year');
 		my $start_month = param('start_month');
@@ -672,7 +672,7 @@ if ( $action eq "future_stock" ) {
 		my $end_timestamp   = timelocal(@end_date);
 
 		# my $cgi = new CGI;
-		print "<p>The data you requested: </p></br><p><a href=\"plot_stock.pl?type=$type&stock=$stock&start=$start_timestamp&end=$end_timestamp\" >$infotype</a></p>";
+		print "<p>The data you requested: </p></br><p><a href=\"time_series_symbol_project.pl?type=$type&stock=$stock&start=$start_timestamp&end=$end_timestamp\" >$infotype</a></p>";
 	}
 }
 
@@ -1165,14 +1165,14 @@ sub UpToDate {
 	eval {
 		@col =
 		  ExecSQL( $dbuser, $dbpasswd,
-			"select max(timestamp) from new_stocks_daily where symbol=rpad(?,16)",
+			"select count(*) from new_stocks_daily where symbol=rpad(?,16)",
 			"COL", $symb );
 	};
 	if ($@) {
 		return 0;
 	}
 	else {
-		return ($col[0] >= (time()-8640));
+		return $col[0] > 0;
 	}
 }
 
