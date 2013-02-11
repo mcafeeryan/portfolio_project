@@ -933,11 +933,12 @@ sub GetPortfolios {
 	return @rows;
 }
 
+# GetBeta($symbol, $from, $to) gets the beta of the stock
 sub GetBeta{
 	# my @rows;
-	# my $from = undef;
-	# my $to = undef;
-	# my $symbol = undef;
+	# my $symbol = @_;
+	# my $from = 0;
+	# my $to = time();
 	# eval {
 	# 	@rows = 
 	# 		ExecSQL( $dbuser, $dbpasswd, "select regr_slope(t1.close, t2.close) from 
@@ -951,7 +952,7 @@ sub GetBeta{
 	return 0;
 }
 
-# StockBuy ...buys stock
+# StockBuy(portfolio_name, symbol, quantity) buys stock
 sub StockBuy {
 	my $transactionTime = time();
 	my ( $portfolio_name, $symbol, $quantity ) = @_;
