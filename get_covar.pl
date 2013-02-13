@@ -36,7 +36,7 @@ for ($i=0;$i<=$#symbols;$i++) {
     
 #first, get means and vars for the individual columns that match
     
-    $sql = "select count(*),avg(l.$field1),stddev(l.$field1),avg(r.$field2),stddev(r.$field2) from ".GetStockPrefix()."StocksDaily l join ".GetStockPrefix()."StocksDaily r on l.timestamp= r.timestamp where l.symbol='$s1' and r.symbol='$s2'";
+    $sql = "select count(*),avg(l.$field1),stddev(l.$field1),avg(r.$field2),stddev(r.$field2) from (select * from ".GetStockPrefix()."StocksDaily union all select * from rpm267.new_stocks_daily) l join (select * from ".GetStockPrefix()."StocksDaily union all select * from rpm267.new_stocks_daily) r on l.timestamp= r.timestamp where l.symbol='$s1' and r.symbol='$s2'";
     $sql.= " and l.timestamp>=$from" if $from;
     $sql.= " and l.timestamp<=$to" if $to;
     
@@ -51,7 +51,7 @@ for ($i=0;$i<=$#symbols;$i++) {
       
       #otherwise get the covariance
 
-      $sql = "select avg((l.$field1 - $mean_f1)*(r.$field2 - $mean_f2)) from ".GetStockPrefix()."StocksDaily l join ".GetStockPrefix()."StocksDaily r on  l.timestamp=r.timestamp where l.symbol='$s1' and r.symbol='$s2'";
+      $sql = "select avg((l.$field1 - $mean_f1)*(r.$field2 - $mean_f2)) from (select * from ".GetStockPrefix()."StocksDaily union all select * from rpm267.new_stocks_daily) l join (select * from ".GetStockPrefix()."StocksDaily union all select * from rpm267.new_stocks_daily) r on  l.timestamp=r.timestamp where l.symbol='$s1' and r.symbol='$s2'";
       $sql.= " and l.timestamp>= $from" if $from;
       $sql.= " and l.timsetamp<= $to" if $to;
 
@@ -77,9 +77,9 @@ if ($simple && $#symbols==1) {
   if ($docorrcoeff) {
     print "Correlation Coefficient Matrix\n";
   } else {
-    print "Covariance Matrix\n";
+    print "Covariance Matrix\t";
   }
-  print "Rows: $field1\nCols: $field2\n\n";
+  print "Rows: $field1\tCols: $field2\n\n";
   
   print join("\t","-----",@symbols),"\n";
   

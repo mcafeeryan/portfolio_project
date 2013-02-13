@@ -402,6 +402,7 @@ if ( $action eq "base" ) {
 
 if ( $action eq "portfolio-view" ) {
 	my $portfolio = param("portfolio");
+	my $matrix;
 	print "<h2 class=\"page-title\">Manage $portfolio portfolio:</h2>";
 	my @cash =
 	  ExecSQL( $dbuser, $dbpasswd,
@@ -416,6 +417,14 @@ if ( $action eq "portfolio-view" ) {
 	}
 	print "<a href=\"portfolio.pl?act=portfolio-transaction&portfolio=$portfolio\">Buy or sell stock.</a></br>";
 	print "</br><p><a href=\"portfolio.pl?act=cash-add&portfolio=$portfolio\">Add</a> or <a href=\"portfolio.pl?act=cash-withdraw&portfolio=$portfolio\">Remove</a> cash from this portfolio.</p></br>";
+	$matrix= `perl get_covar.pl @stocks`;
+	$matrix=~ s/\t/<\/td><td>/g;
+	$matrix=~ s/\n/<\/td><\/tr><tr><td>/g;
+	$matrix=~ s/Matrix/Matrix<\/td>/g;
+	print "</br><table border = '1'><tr><td>";
+	print $matrix;
+	print "</table>";
+	
 }
 
 
@@ -423,7 +432,8 @@ if ( $action eq "view-stock" ) {
 		my $stock = param('stock');
 		my $portfolio_name=param('portfolio');
 	  my $stockVal = GetLatest($stock);
-	  my $stockCV= GetInfo($stock);
+	  my @stockInfo= GetInfo($stock);
+	  my $stockCV=($stockInfo[0]/$stockInfo[1]);
 	  my $stockB=GetBeta($stock);
 	  my $stockCount = HoldingCount( $email, $portfolio_name, $stock );
 	  print "<p>You have ".$stockCount." shares of ".$stock." currently valued at \$".$stockVal." per share. The CV for this stock is: ".$stockCV." and the beta is: ".$stockB."</p>";
@@ -649,10 +659,10 @@ if ( $action eq "portfolio-transaction" ) {
 		if ( $direction eq 'Sell' ) {
 			$logStr = StockSell( $portfolio_name, $symbol, $quantity );
 			print h2($logStr);
-			GetHistory($symbol);
 		}
 		if ( $direction eq 'Buy' ) {
 			$logStr = StockBuy( $portfolio_name, $symbol, $quantity );
+			GetHistory($symbol);
 			print h2($logStr);
 		}
 
@@ -808,7 +818,15 @@ sub GetPortfolios {
 }
 
 sub GetBeta{
-	return 0;
+	my $covar;
+	my @info;
+	my $variance;
+	my ($symb)=@_;
+	$covar = `perl get_covar.pl --simple $symb DIA`;
+	@info=GetInfo('DIA');
+	$variance=$info[0];
+	$variance=$variance*$variance;
+	return ($covar/$variance);
 }
 
 # StockBuy ...buys stock
@@ -961,7 +979,7 @@ sub GetLatest {
 	my $stats;
 	my @all;
 	my @row;
-	$stats = `perl quote.pl $symb`;    #get all stats
+	$stats = `perl quote.pl $symb`;    #get the latest quote from yahoo
 
 	@all = split( /\n/, $stats );      #split by newlines, put into @all array
 
@@ -977,6 +995,7 @@ sub GetLatest {
 
 sub GetInfo{
 	my ($symb)=@_;
+	my @ret;
 	my @row;
 	$symb=uc($symb);
 	my $field='close';
@@ -985,7 +1004,9 @@ sub GetInfo{
 		eval{ @row=ExecSQL($dbuser, $dbpasswd, "Select count($field), avg($field), stddev($field),min($field),max($field) from (select * from cs339.stocksdaily where symbol=rpad(?,16) union all select * from new_stocks_daily where symbol=rpad(?,16)) ","ROW",$symb, $symb);
 		};
 	}
-	return ($row[2]/$row[1]);
+	@ret=($row[2],$row[1]);
+	#For this, only care about average, std deviation
+	return @ret;
 }
 
 sub GetHistory {
@@ -1000,12 +1021,16 @@ sub GetHistory {
 	my $q;
 	my $row;
 	my $symbol;
+	my $latestTS;
 	$symb = uc($symb);
 
 	if ( !UpToDate($symb) && inSymbs($symb) ) {
+		$latestTS=GetLatestTS($symb);
+		if(!$latestTS)
+		{$latestTS=1154390400;}
 		$q = Finance::QuoteHist::Yahoo->new(
 			symbols    => $symb,
-			start_date => '08/01/2006',
+			start_date => scalar localtime($latestTS),
 			end_date   => 'today',
 		  )
 		  or die;
@@ -1031,7 +1056,23 @@ sub GetHistory {
 		}
 	}
 }
-
+sub GetLatestTS{
+	my ($symb)=@_;
+	$symb=uc($symb);
+	my @col;
+	eval {
+		@col =
+		  ExecSQL( $dbuser, $dbpasswd,
+			"select max(timestamp) from new_stocks_daily where symbol=rpad(?,16)",
+			"COL", $symb );
+	};
+	if ($@) {
+		return 0;
+	}
+	else {
+		return $col[0];
+	}
+}
 sub UpToDate {
 	my ($symb) = @_;
 	$symb = uc($symb);
@@ -1046,7 +1087,7 @@ sub UpToDate {
 		return 0;
 	}
 	else {
-		return ($col[0] >= (time()-8640));
+		return ($col[0] >= (time()-86400));
 	}
 }
 
