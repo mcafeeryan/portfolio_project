@@ -428,8 +428,9 @@ if ( $action eq "view-stock" ) {
 	my $stockCount = HoldingCount( $email, $portfolio_name, $stock );
 	print "<p>You have ".$stockCount." shares of ".$stock." currently valued at \$".$stockVal." per share.</p>";
 	print "<p>The CV for this stock is: ".$stockCV." and the beta is: ".$stockB."</p>";
-	print "</br><a href=\"portfolio.pl?act=show_stock&stock=$stock\">View historic data or graphs of $stock</a></br>";
-	print "</br></br><a href=\"portfolio.pl?act=future_stock&stock=$stock\">View future predictions of $stock</a></br>";
+	print "</br><a href=\"portfolio.pl?act=show_stock&stock=$stock\">View historic data or graphs of $stock</a>";
+	print "</br></br><a href=\"portfolio.pl?act=future_stock&stock=$stock\">View future predictions of $stock</a>";
+	print "</br></br><a href=\"portfolio.pl?act=trade_strategy&stock=$stock\">Run Shannon Ratchet trading strategy on this stock.</a></br>";
 }
 
 if ( $action eq "show_stock" ) {
@@ -560,83 +561,27 @@ if ( $action eq "future_stock" ) {
 		print "<h2>$stock</h2>";
 		# the minimal timestamp of this stock
 		print "<p>Select the period of time into the future you for which you wish to see predictions on $stock:</p>";
-		my @timestamps = ExecSQL(
-			$dbuser,
-			$dbpasswd,
-			"select min(timestamp) from cs339.stocksdaily where symbol=rpad(?, 16)",
-			undef,
-			$stock
-		);
-		my $min_timestamp = $timestamps[0];
-
-		# get the year of minimal timestamp
-		my $stock_startyear   = ( localtime( ${$min_timestamp}[0] ) )[5] + 1900;
-		my $time              = time;
-		my $stock_currentyear = ( localtime($time) )[5] + 1900;
-
-		# construct years range
-		my @stock_years = ( $stock_startyear .. $stock_currentyear );
-
-		# construct months range
-		my @stock_months = ( 01 .. 12 );
-
-		# construct days range
-		my @stock_days = ( 1 .. 31 );
 
 		print start_form(
 			-method => 'POST',
-			-action => '/~msh986/portfolio_project/portfolio.pl?'
+			-action => '/~rpm267/portfolio/portfolio.pl?'
 		);
-		print "From: ";
+		
+
+		print "Steps: ";
 		print popup_menu(
-			-name  => 'start_month',
-			-value => \@stock_months,
+			-name  => 'steps',
+			-value => [ 1 ... 100 ],
 			-style => 'width:80px'
 		);
 
-		print popup_menu(
-			-name  => 'start_day',
-			-value => \@stock_days,
-			-style => 'width:80px'
-		);
-		print popup_menu(
-			-name  => 'start_year',
-			-value => \@stock_years,
-			-style => 'width:80px'
-		);
-
-		print "</br>To: &nbsp&nbsp&nbsp&nbsp";
-		print popup_menu(
-			-name  => 'end_month',
-			-value => \@stock_months,
-			-style => 'width:80px'
-		);
-
-		print popup_menu(
-			-name  => 'end_day',
-			-value => \@stock_days,
-			-style => 'width:80px'
-		);
-		print popup_menu(
-			-name  => 'end_year',
-			-value => \@stock_years,
-			-style => 'width:80px'
-		);
-
-		print "</br>Type:&nbsp";
-		print popup_menu(
-			-name  => 'type',
-			-value => [ 'text', 'plot' ],
-			-default => [ 'plot' ],
-			-style => 'width:80px'
-		);
 		print hidden(
 			-name    => 'symbol',
 			-default => $stock
 		);
 		print hidden(
 			-name    => 'act',
-			-default => ['show_stock']
+			-default => ['future_stock']
 		);
 		print hidden(
 			-name    => 'run',
@@ -649,32 +594,54 @@ if ( $action eq "future_stock" ) {
 		print end_form;
 	}
 	else {
-		my $stock       = param('stock');
-		my $type        = param('type');
-		my $start_year  = param('start_year');
-		my $start_month = param('start_month');
-		my $start_day   = param('start_day');
-		my $end_year    = param('end_year');
-		my $end_month   = param('end_month');
-		my $end_day     = param('end_day');
-		my $infotype = $type;
-		if($infotype eq "text")
-		{
-			$infotype='table';
-		}
-	#
-	# construct start and end date, then use timelocal function to convert     # to Unix time.
-	#
+		my $symbol       = param('symbol');
+		my $steps 		= param('steps');
 
-		my @start_date = ( 0, 0, 0, $start_day, $start_month, $start_year );
-		my @end_date   = ( 0, 0, 0, $end_day,   $end_month,   $end_year );
-		my $start_timestamp = timelocal(@start_date);
-		my $end_timestamp   = timelocal(@end_date);
-
-		# my $cgi = new CGI;
-		print "<p>The data you requested: </p></br><p><a href=\"time_series_symbol_project.pl?type=$type&stock=$stock&start=$start_timestamp&end=$end_timestamp\" >$infotype</a></p>";
+		print "<p>The data you requested: </p></br><p><a href=\"time_series_symbol_project.pl?symbol=$symbol&steps=$steps\">Plot</a></p>";
 	}
 }
+
+if ( $action eq "trade_strategy" ) {
+	if ( !$run ) {
+		my $stock = param('stock');
+		print "<h2>$stock</h2>";
+
+		print start_form(
+			-method => 'POST',
+			-action => '/~rpm267/portfolio/portfolio.pl?'
+		);
+		
+		print "Initial cash to invest:</br>";
+		print textfield( -name => 'initialcash' );
+		print "</br>Cost of trading: </br>";
+		print textfield( -name => 'tradecost' );
+
+		print hidden(
+			-name    => 'symbol',
+			-default => $stock
+		);
+		print hidden(
+			-name    => 'act',
+			-default => ['trade_strategy']
+		);
+		print hidden(
+			-name    => 'run',
+			-default => ['1']
+		);
+		print submit(
+			-name  => "show-plot",
+			-value => "Show Results"
+		);
+		print end_form;
+	}
+	else {
+		my $symbol       = param('symbol');
+		my $initialcash  = param('initialcash');
+		my $tradecost    = param('tradecost');
+		print "</br><p><a href=\"shannon_ratchet.pl?symbol=$symbol&initialcash=$initialcash&tradecost=$tradecost\">The data you requested.</a></p>";
+	}
+}
+
 
 if ( $action eq "cash-add" ) {
 	my $portfolio=param('portfolio');

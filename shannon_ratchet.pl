@@ -1,18 +1,38 @@
 #!/usr/bin/perl -w 
 
-$#ARGV==2 or die "usage: shannon_ratchet.pl symbol initialcash tradingcost\n";
+BEGIN {
+  $ENV{PORTF_DBMS}   = "oracle";
+  $ENV{PORTF_DB}     = "cs339";
+  $ENV{PORTF_DBUSER} = "rpm267";
+  $ENV{PORTF_DBPASS} = "Qea42wvW";
+  $ENV{PATH}=$ENV{PATH} . ":.";
 
-($symbol, $initialcash,$tradecost) = @ARGV;
 
-#my $symbol = param('symbol');
-#my $initialcash = param('initialcash');
-#my $tradecost = param('tradecost');
+  unless ( $ENV{BEGIN_BLOCK} ) {
+    use Cwd;
+    $ENV{ORACLE_BASE}     = "/raid/oracle11g/app/oracle/product/11.2.0.1.0";
+    $ENV{ORACLE_HOME}     = $ENV{ORACLE_BASE} . "/db_1";
+    $ENV{ORACLE_SID}      = "CS339";
+    $ENV{LD_LIBRARY_PATH} = $ENV{ORACLE_HOME} . "/lib";
+    $ENV{BEGIN_BLOCK}     = 1;
+    exec 'env', cwd() . '/' . $0, @ARGV;
+  }
+}
+
+#$#ARGV==2 or die "usage: shannon_ratchet.pl symbol initialcash tradingcost\n";
+
+#($symbol, $initialcash,$tradecost) = @ARGV;
+use CGI qw(:standard);
+
+my $symbol = param('symbol');
+my $initialcash = param('initialcash');
+my $tradecost = param('tradecost');
 
 $lastcash=$initialcash;
 $laststock=0;
 $lasttotal=$lastcash;
 $lasttotalaftertradecost=$lasttotal;
-
+print "Content-Type: text/plain\r\n\r\n";
 open(STOCK, "get_data.pl --close $symbol |");
 
 
