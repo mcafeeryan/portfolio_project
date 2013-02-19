@@ -438,6 +438,9 @@ if ( $action eq "view-stock" ) {
 	  my $stockCount = HoldingCount( $email, $portfolio_name, $stock );
 	  print "<p>You have ".$stockCount." shares of ".$stock." currently valued at \$".$stockVal." per share. The CV for this stock is: ".$stockCV." and the beta is: ".$stockB."</p>";
 	print "</br><a href=\"portfolio.pl?act=show_stock&stock=$stock\">View historic data or graphs of $stock</a></br>";
+print "</br></br><a href=\"portfolio.pl?act=future_stock&stock=$stock\">View future predictions of $stock</a>";
+print "</br></br><a href=\"portfolio.pl?act=trade_strategy&stock=$stock\">Run Shannon Ratchet trading strategy on this stock.</a></br>";
+
 }
 
 if ( $action eq "cash-add" ) {
@@ -610,7 +613,90 @@ if ( $action eq "show_stock" ) {
 		print "<p>The data you requested: </p></br><p><a href=\"plot_stock.pl?type=$type&stock=$stock&start=$start_timestamp&end=$end_timestamp\" >$infotype</a></p>";
 	}
 }
+if ( $action eq "future_stock" ) {
+if ( !$run ) {
+my $stock = param('stock');
+print "<h2>$stock</h2>";
+# the minimal timestamp of this stock
+print "<p>Select the period of time into the future you for which you wish to see predictions on $stock:</p>";
 
+print start_form(
+-method => 'POST',
+-action => '/~rpm267/portfolio/portfolio.pl?'
+);
+
+print "Steps: ";
+print popup_menu(
+-name  => 'steps',
+-value => [ 1 ... 100 ],
+-style => 'width:80px'
+);
+
+print hidden(
+-name    => 'symbol',
+-default => $stock
+);
+print hidden(
+-name    => 'act',
+-default => ['future_stock']
+);
+print hidden(
+-name    => 'run',
+-default => ['1']
+);
+print submit(
+-name  => "show-plot",
+-value => "Show Results"
+);
+print end_form;
+}
+else {
+my $symbol       = param('symbol');
+my $steps = param('steps');
+
+print "<p>The data you requested: </p></br><p><a href=\"time_series_symbol_project.pl?symbol=$symbol&steps=$steps\">Plot</a></p>";
+}
+}
+
+if ( $action eq "trade_strategy" ) {
+if ( !$run ) {
+my $stock = param('stock');
+print "<h2>$stock</h2>";
+
+print start_form(
+-method => 'POST',
+-action => '/~rpm267/portfolio/portfolio.pl?'
+);
+print "Initial cash to invest:</br>";
+print textfield( -name => 'initialcash' );
+print "</br>Cost of trading: </br>";
+print textfield( -name => 'tradecost' );
+
+print hidden(
+-name    => 'symbol',
+-default => $stock
+);
+print hidden(
+-name    => 'act',
+-default => ['trade_strategy']
+);
+print hidden(
+-name    => 'run',
+-default => ['1']
+);
+print submit(
+-name  => "show-plot",
+-value => "Show Results"
+);
+print end_form;
+}
+else {
+my $symbol       = param('symbol');
+my $initialcash  = param('initialcash');
+my $tradecost    = param('tradecost');
+print "</br><p><a href=\"shannon_ratchet.pl?symbol=$symbol&initialcash=$initialcash&tradecost=$tradecost\">The data you requested.</a></p>";
+}
+}
 #
 # PORTFOLIO TRANSACTION VIEW (Buy or sell stock)
 # buy logic checks:
