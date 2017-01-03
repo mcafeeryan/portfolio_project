@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+# This is a comment
+
 use Getopt::Long;
 
 &GetOptions("simple"=>\$simple);
